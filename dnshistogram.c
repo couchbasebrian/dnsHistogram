@@ -22,7 +22,9 @@ long timer_end(struct timespec start_time){
 
 int main() {
 
-  int numberIterations = 100;
+  int numberIterations = 1000;
+  
+  printf("I will perform %d iterations\n", numberIterations);
 
   // Buckets with size 0.01 seconds ( 10000000 nanoseconds )
 
@@ -42,11 +44,12 @@ int main() {
     counter[i] = 0;
   }
 
-  int others = 0;
+  int tooLow = 0;
+  int tooHigh = 0;
 
-  while (numberIterations >= 0) {
+  while (numberIterations > 0) {
 
-  printf("About to do lookup\n");
+  // printf("About to do lookup\n");
 
   struct timespec vartime = timer_start();  // begin a timer called 'vartime'
 
@@ -54,26 +57,30 @@ int main() {
 
   long time_elapsed_nanos = timer_end(vartime);
 
-  printf("Time taken (nanoseconds): %ld\n", time_elapsed_nanos);
-
-  printf("After doing lookup\n");
+  // printf("Time taken (nanoseconds): %ld\n", time_elapsed_nanos);
+  // printf("After doing lookup\n");
 
   // This will return a number like 25602923 nanoseconds which is 0.02 seconds
 
   int bucketNumber = time_elapsed_nanos / bucketSize;
 
-  printf("The bucket number is: %d\n", bucketNumber); 
+  // printf("The bucket number is: %d\n", bucketNumber); 
 
-  if (bucketNumber >= 0) {
-    counter[bucketNumber] = counter[bucketNumber] + 1;
-  } else {
-    others++;
+  if (bucketNumber < 0) {
+     tooLow++;
   }
-
+  else {
+    if (bucketNumber >= numBuckets) {
+      tooHigh++;
+    }  
+    else {
+      counter[bucketNumber] = counter[bucketNumber] + 1;
+    }
+  }
   
   numberIterations--;
 
-  }
+  } // main loop
 
   // print histogram
 
@@ -85,7 +92,8 @@ int main() {
      printf("%10lu - %10lu : %10lu \n", b1, b2, counter[i] );
   }
 
-  printf("Others: %d\n", others);
+  printf("too low:  %4d\n", tooLow);
+  printf("too high: %4d\n", tooHigh);
 
 }
 
